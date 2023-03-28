@@ -94,6 +94,7 @@ exports.newFoundationsFunctionLibrariesProcessFunctions = function () {
     }
 
     function processHeartBeat(processIndex, processingDate, percentage, status) {
+        SA.logger.debug('processHeartBeat')
         let event = {
             seconds: (new Date()).getSeconds(),
             processingDate: processingDate,

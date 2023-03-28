@@ -35,6 +35,7 @@ exports.newTaskServer = function newTaskServer() {
                     TS.projects.foundations.globals.taskConstants.EVENT_SERVER_CLIENT_MODULE_OBJECT.raiseEvent('Task Manager - ' + taskId, 'Nodejs Process Ready for Task')
 
                     function eventReceived(message) {
+                        SA.logger.debug('Received event message to task server')
                         try {
                             TS.projects.foundations.globals.taskConstants.TASK_NODE = JSON.parse(message.event.taskDefinition)
                             TS.projects.foundations.globals.taskConstants.NETWORK_NODE = JSON.parse(message.event.networkDefinition)
@@ -229,7 +230,7 @@ exports.newTaskServer = function newTaskServer() {
                     TS.projects.foundations.globals.taskConstants.TASK_HEARTBEAT_INTERVAL_HANDLER = setInterval(taskHearBeat, 1000)
 
                     function taskHearBeat() {
-
+                        SA.logger.debug('Setting up task heat beat')
                         /* The heartbeat event is raised at the event handler of the instance of this task, created at the TS. */
                         let event = {
                             seconds: (new Date()).getSeconds()
@@ -283,7 +284,7 @@ exports.newTaskServer = function newTaskServer() {
         }
 
         function startProcessInstance(processIndex) {
-
+            SA.logger.debug('Starting process instance')
             const ROOT_MODULE = require('./ProcessInstance')
             let root = ROOT_MODULE.newProcessInstance()
 

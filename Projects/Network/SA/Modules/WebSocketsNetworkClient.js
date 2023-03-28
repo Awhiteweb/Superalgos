@@ -55,7 +55,9 @@ exports.newNetworkModulesWebSocketsNetworkClient = function newNetworkModulesWeb
         trigger a close and reconnect every 24hrs so the connection does not go stale
         */
         thisTimer = setInterval(() => {
+            SA.logger.info('Running interval for websocket connections')
             thisSocket.close()
+            SA.logger.info('Closed websocket connection to ' + thisObject.host + ':' + thisObject.port)
             initSocket(
                 callerRole,
                 p2pNetworkClientIdentity,
@@ -73,7 +75,7 @@ exports.newNetworkModulesWebSocketsNetworkClient = function newNetworkModulesWeb
         p2pNetworkClient,
         onConnectionClosedCallBack
     ) {
-
+        SA.logger.info('Setting up websockets connection to ' + thisObject.host + ':' + thisObject.port)
         thisSocket = new SA.nodeModules.ws('ws://' + thisObject.host + ':' + thisObject.port)
 
         thisObject.socketNetworkClients = SA.projects.network.modules.socketNetworkClients.newNetworkModulesSocketNetworkClients()
@@ -153,6 +155,7 @@ exports.newNetworkModulesWebSocketsNetworkClient = function newNetworkModulesWeb
                 Longer grace period is required due to large Bitcoin Factory files being transferred, this blocking the connection for the ping for a little while. 
                 */
                 function heartbeat() {
+                    SA.logger.debug('Received ping from ' + socket.url)
                     clearTimeout(socket.pingTimeout)
                     socket.pingTimeout = setTimeout(() => {
                         SA.logger.info('No Websockets heartbeat received from server, re-initializing connection...')

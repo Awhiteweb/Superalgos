@@ -68,7 +68,7 @@ exports.newNetworkModulesWebSocketsInterface = function newNetworkModulesWebSock
                         SA.logger.info('Server could not confirm client to be alive, terminating Websockets connection' + infostring)
                         return caller.socket.terminate()
                     }
-                    /* SA.logger.debug('Server-side heartbeat triggered for ', caller.userProfile.name, caller.socket.id) */
+                    SA.logger.debug('Server-side heartbeat pinged ', caller.userProfile.name, caller.socket.id)
                     caller.socket.isAlive = false
                     caller.socket.ping()
                 }, 30000)
@@ -83,7 +83,7 @@ exports.newNetworkModulesWebSocketsInterface = function newNetworkModulesWebSock
 
                 function heartbeat() {
                     caller.socket.isAlive = true
-                    /* SA.logger.debug('Incoming Pong received for ', caller.userProfile.name, caller.socket.id) */
+                    SA.logger.debug('Incoming Pong received for ', caller.userProfile.name, caller.socket.id)
                 }
 
                 function onConnectionClosed() {
