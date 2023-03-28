@@ -15,6 +15,7 @@ exports.newFoundationsFunctionLibrariesSessionFunctions = function () {
     return thisObject
 
     function sessionHeartBeat(processIndex, processingDate, percentage, status) {
+        SA.logger.debug('sessionHeartBeat')
         let event = {
             seconds: (new Date()).getSeconds(),
             processingDate: processingDate,
