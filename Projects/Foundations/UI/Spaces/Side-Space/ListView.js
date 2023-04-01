@@ -105,7 +105,7 @@ function newListView() {
             thisObject.listItems = []
             for (let i = 0; i < workspacelist.length; i++) {
                 let project = workspacelist[i][0]
-                let workspace = workspacelist[i][1].replace('.json', '')
+                let workspace = workspacelist[i][workspacelist[i].length-1].replace('.json', '')
                 let listItem = newListItem()
                 listItem.initialize(workspace, project, 'Workspace')
                 listItem.container.connectToParent(thisObject.container, false, false)
