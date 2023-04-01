@@ -813,6 +813,12 @@
                     "propertyName": "loggerVariables",
                     "functionName": "newFoundationsGlobalsLoggerVariables",
                     "fileName": "LoggerVariables.js"
+                },
+                {
+                    "name": "Persistence",
+                    "propertyName": "persistence",
+                    "functionName": "newFoundationsGlobalsPersistence",
+                    "fileName": "Persistence.js"
                 }
             ],
             "functionLibraries": [

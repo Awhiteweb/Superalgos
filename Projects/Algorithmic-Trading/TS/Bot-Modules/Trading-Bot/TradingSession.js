@@ -99,6 +99,7 @@
 
             function onSessionRun(message) {
                 try {
+                    SA.logger.info('Running trading session for processIndex' + processIndex)
                     /* This happens when the UI is reloaded, the session was running and tries to run it again. */
                     if (
                         TS.projects.foundations.globals.processVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).SESSION_STATUS === 'Idle' ||
@@ -106,14 +107,18 @@
                     ) {
                         TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).PROCESS_INSTANCE_LOGGER_MODULE_OBJECT.write(MODULE_NAME,
                             "[WARN] onSessionRun -> Event received to run the Session while it was already running. ")
-                        return
+                            return
                     }
-
+                    
                     /* We are going to initialize here these constants whose values are coming at the event. */
                     TS.projects.foundations.globals.processConstants.CONSTANTS_BY_PROCESS_INDEX_MAP.get(processIndex).TRADING_SYSTEM_NODE = JSON.parse(message.event.tradingSystem)
+                    TS.projects.foundations.globals.persistence.save(global.env.PATH_TO_DATA_STORAGE + '/' + TS.id + '/Message/tradingSystem.json', message.event.tradingSystem)
                     TS.projects.foundations.globals.processConstants.CONSTANTS_BY_PROCESS_INDEX_MAP.get(processIndex).TRADING_ENGINE_NODE = JSON.parse(message.event.tradingEngine)
+                    TS.projects.foundations.globals.persistence.save(global.env.PATH_TO_DATA_STORAGE + '/' + TS.id + '/Message/tradingEngine.json', message.event.tradingEngine)
                     TS.projects.foundations.globals.processConstants.CONSTANTS_BY_PROCESS_INDEX_MAP.get(processIndex).SESSION_NODE = JSON.parse(message.event.session)
+                    TS.projects.foundations.globals.persistence.save(global.env.PATH_TO_DATA_STORAGE + '/' + TS.id + '/Message/session.json', message.event.session)
                     TS.projects.foundations.globals.processConstants.CONSTANTS_BY_PROCESS_INDEX_MAP.get(processIndex).DEPENDENCY_FILTER = JSON.parse(message.event.dependencyFilter)
+                    TS.projects.foundations.globals.persistence.save(global.env.PATH_TO_DATA_STORAGE + '/' + TS.id + '/Message/dependencyFilter.json', message.event.dependencyFilter)
                     TS.projects.foundations.globals.processVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).IS_SESSION_RESUMING = false
                     TS.projects.foundations.globals.processVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).IS_SESSION_FIRST_LOOP = true
 

@@ -25,6 +25,7 @@ exports.newTaskServer = function newTaskServer() {
             */
             let taskId = process.argv[2] // reading what comes as an argument of the nodejs process.
             if (taskId !== undefined) {
+                TS.id = taskId
                 /* 
                 The Task Manager sent the info via a process argument. In this case we listen to 
                 an event with the Task Info that should be emitted at the UI;
@@ -38,10 +39,14 @@ exports.newTaskServer = function newTaskServer() {
                         SA.logger.debug('Received event message to task server')
                         try {
                             TS.projects.foundations.globals.taskConstants.TASK_NODE = JSON.parse(message.event.taskDefinition)
+                            storeData(taskId + '/' + 'taskDefinition.json', message.event.taskDefinition)
                             TS.projects.foundations.globals.taskConstants.NETWORK_NODE = JSON.parse(message.event.networkDefinition)
+                            storeData(taskId + '/' + 'networkDefinition.json', message.event.networkDefinition)
                             TS.projects.foundations.globals.taskConstants.MANAGED_TASKS = JSON.parse(message.event.managedTasksDefinition)
+                            storeData(taskId + '/' + 'managedTasksDefinition.json', message.event.managedTasksDefinition)
                             if (message.event.dependencyFilters !== undefined) {
                                 TS.projects.foundations.globals.taskConstants.DEPENDENCY_FILTERS = JSON.parse(message.event.dependencyFilters)
+                                storeData(taskId + '/' + 'dependencyFilters.json', message.event.dependencyFilters)
                             }
                             TS.projects.foundations.globals.taskConstants.MANAGED_SESSIONS_REFERENCES = SA.projects.visualScripting.utilities.nodeFunctions.nodeBranchToArray(TS.projects.foundations.globals.taskConstants.TASK_NODE, 'Session Reference')
                             bootingProcess();
@@ -64,10 +69,14 @@ exports.newTaskServer = function newTaskServer() {
                     function startDebugging(message) {
                         try {
                             TS.projects.foundations.globals.taskConstants.TASK_NODE = JSON.parse(message.event.taskDefinition)
+                            storeData('debugTask/' + 'taskDefinition.json', message.event.taskDefinition)
                             TS.projects.foundations.globals.taskConstants.NETWORK_NODE = JSON.parse(message.event.networkDefinition)
+                            storeData('debugTask/' + 'networkDefinition.json', message.event.networkDefinition)
                             TS.projects.foundations.globals.taskConstants.MANAGED_TASKS = JSON.parse(message.event.managedTasksDefinition)
+                            storeData('debugTask/' + 'managedTasksDefinition.json', message.event.managedTasksDefinition)
                             if (message.event.dependencyFilters !== undefined) {
                                 TS.projects.foundations.globals.taskConstants.DEPENDENCY_FILTERS = JSON.parse(message.event.dependencyFilters)
+                                storeData('taskDebug/' + 'dependencyFilters.json', message.event.dependencyFilters)
                             }
                             TS.projects.foundations.globals.taskConstants.MANAGED_SESSIONS_REFERENCES = SA.projects.visualScripting.utilities.nodeFunctions.nodeBranchToArray(TS.projects.foundations.globals.taskConstants.TASK_NODE, 'Session Reference')
                             bootingProcess()
@@ -289,6 +298,11 @@ exports.newTaskServer = function newTaskServer() {
             let root = ROOT_MODULE.newProcessInstance()
 
             root.start(processIndex)
+        }
+
+        function storeData(filename, data) {
+            let dir = global.env.PATH_TO_DATA_STORAGE + '/' + filename
+            TS.projects.foundations.globals.persistence.save(dir, data)
         }
     }
 }
