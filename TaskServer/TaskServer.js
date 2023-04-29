@@ -7,7 +7,7 @@ exports.newTaskServer = function newTaskServer() {
     return thisObject
 
     async function run() {
-
+        TS.id = process.argv[2]
         /* Setting up the handling of Node JS process events */
         let NODE_JS_PROCESS = require('./NodeJsProcess.js');
         let NODE_JS_PROCESS_MODULE = NODE_JS_PROCESS.newNodeJsProcess()
@@ -25,7 +25,6 @@ exports.newTaskServer = function newTaskServer() {
             */
             let taskId = process.argv[2] // reading what comes as an argument of the nodejs process.
             if (taskId !== undefined) {
-                TS.id = taskId
                 /* 
                 The Task Manager sent the info via a process argument. In this case we listen to 
                 an event with the Task Info that should be emitted at the UI;
@@ -236,10 +235,10 @@ exports.newTaskServer = function newTaskServer() {
 
                     TS.projects.foundations.globals.taskConstants.EVENT_SERVER_CLIENT_MODULE_OBJECT.createEventHandler(key)
                     TS.projects.foundations.globals.taskConstants.EVENT_SERVER_CLIENT_MODULE_OBJECT.raiseEvent(key, 'Running') // Meaning Task Running
-                    TS.projects.foundations.globals.taskConstants.TASK_HEARTBEAT_INTERVAL_HANDLER = setInterval(taskHearBeat, 1000)
+                    TS.projects.foundations.globals.taskConstants.TASK_HEARTBEAT_INTERVAL_HANDLER = setInterval(taskHeartBeat, 1000)
 
-                    function taskHearBeat() {
-                        SA.logger.debug('Setting up task heat beat')
+                    function taskHeartBeat() {
+                        // SA.logger.debug(TS.id + ' task heart beat for ' + TS.projects.foundations.globals.taskConstants.TASK_NODE.name)
                         /* The heartbeat event is raised at the event handler of the instance of this task, created at the TS. */
                         let event = {
                             seconds: (new Date()).getSeconds()

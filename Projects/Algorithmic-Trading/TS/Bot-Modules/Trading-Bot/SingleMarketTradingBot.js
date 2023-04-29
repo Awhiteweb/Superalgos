@@ -43,23 +43,23 @@
 
             function loop() {
                 try {
-                    TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Running...")
                     function pad(str, max) {
                         str = str.toString();
                         return str.length < max ? pad(" " + str, max) : str;
                     }
-
+                    
                     /* For each loop we want to create a new log file. */
                     if (TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT !== undefined) {
                         TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.finalize()
                     }
                     TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT = TS.projects.foundations.taskModules.debugLog.newFoundationsTaskModulesDebugLog(processIndex)
                     TS.projects.foundations.globals.taskVariables.LOGGER_MAP.set(MODULE_NAME + TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].id, TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT)
-
+                    
                     TS.projects.foundations.globals.processVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).MAIN_LOOP_COUNTER++;
-
+                    
                     let nextWaitTime;
-
+                    
+                    SA.logger.debug('single market  heart beat (line 64)')
                     /* We tell the UI that we are running. */
                     TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Running...")
 
@@ -117,9 +117,9 @@
                                         case TS.projects.foundations.globals.standardResponses.DEFAULT_OK_RESPONSE.result: {
                                             TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.write(MODULE_NAME,
                                                 "[INFO] run -> loop -> initializeProcessExecutionEvents -> onInizialized -> Execution finished well.");
-                                            startProcessExecutionEvents()
-                                            return;
-                                        }
+                                                startProcessExecutionEvents()
+                                                return;
+                                            }
                                         case TS.projects.foundations.globals.standardResponses.DEFAULT_RETRY_RESPONSE.result: {  // Something bad happened, but if we retry in a while it might go through the next time.
                                             TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.write(MODULE_NAME,
                                                 "[WARN] run -> loop -> initializeProcessExecutionEvents -> onInizialized -> Retry Later. Requesting Execution Retry.");
@@ -648,6 +648,7 @@
                         TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.write(MODULE_NAME,
                             "[INFO] run -> loop -> loopControl -> nextWaitTime = " + nextWaitTime)
 
+                        SA.logger.debug('single market heart beat (line 653)')
                         /* We show we reached the end of the loop. */
                         TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Running...")
 
@@ -676,6 +677,7 @@
                                         waitingTime = waitTime / 1000
                                         label = 'seconds'
                                     }
+                                    SA.logger.debug('single market heart beat (line 682)')
                                     TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Waiting " + waitingTime + " " + label + " for " + TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].session.type + " " + TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].session.name + " to be run. ")
                                     TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.persist();
                                 }
@@ -717,6 +719,7 @@
                                         waitingTime = waitTime / 1000
                                         label = 'seconds'
                                     }
+                                    SA.logger.debug('single market heart beat (line 724)')
                                     TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Waiting " + waitingTime + " " + label + " for next execution.")
                                     TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.persist();
                                 }
@@ -725,6 +728,7 @@
                                     TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.write(MODULE_NAME,
                                         "[INFO] run -> loop -> loopControl -> Restarting Loop in " + (TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].referenceParent.config.retryWaitTime / 1000) + " seconds.")
                                     nextLoopTimeoutHandle = setTimeout(loop, TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].referenceParent.config.retryWaitTime);
+                                    SA.logger.debug('single market heart beat (line 733)')
                                     TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Trying to recover from some problem. Waiting " + TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].referenceParent.config.retryWaitTime / 1000 + " seconds for next execution.")
                                     TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.persist();
                                 }
@@ -733,6 +737,7 @@
                                     TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.write(MODULE_NAME,
                                         "[INFO] run -> loop -> loopControl -> Restarting Loop in " + (TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].referenceParent.config.sleepWaitTime / 60000) + " minutes.")
                                     nextLoopTimeoutHandle = setTimeout(loop, TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].referenceParent.config.sleepWaitTime);
+                                    SA.logger.debug('single market heart beat (line 742)')
                                     TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Waiting " + TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].referenceParent.config.sleepWaitTime / 60000 + " minutes for next execution.")
                                     TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.persist();
                                 }
@@ -741,6 +746,7 @@
                                     TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.write(MODULE_NAME,
                                         "[INFO] run -> loop -> loopControl -> Restarting Loop in " + (TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].referenceParent.config.comaWaitTime / 3600000) + " hours.")
                                     nextLoopTimeoutHandle = setTimeout(loop, TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].referenceParent.config.comaWaitTime);
+                                    SA.logger.debug('single market heart beat (line 751)')
                                     TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Waiting " + TS.projects.foundations.globals.taskConstants.TASK_NODE.bot.processes[processIndex].referenceParent.config.comaWaitTime / 3600000 + " hours for next execution.")
                                     TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.persist();
                                 }
