@@ -78,6 +78,9 @@
             WEB_SOCKETS_CLIENT.on('pong', heartbeat)
             WEB_SOCKETS_CLIENT.onmessage = e => {
                 try {
+                    /* If we receive a message, the connection is alive. */                    
+                    heartbeat()
+                    
                     if (INFO_LOG === true) {
                         SA.logger.info('Websocket Message Received: ' + e.data.substring(0, 1000))
                     }
@@ -173,6 +176,7 @@
             WEB_SOCKETS_CLIENT.terminate()
             SA.logger.error('Task Server -> Event Server Client -> No connection keep-alive signal received. Terminating and trying to re-initialize.')
             setuptWebSockets()
+            return
         }
         SA.logger.debug('event server websocket ready state ' + WEB_SOCKETS_CLIENT.readyState + ' === ' + WEB_SOCKET.OPEN)
         if(WEB_SOCKETS_CLIENT.readyState === WEB_SOCKET.OPEN) {

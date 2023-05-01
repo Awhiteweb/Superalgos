@@ -629,11 +629,6 @@
                     "functionName": "newFoundationsUtilitiesDrawPrint"
                 },
                 {
-                    "name": "Tutorial",
-                    "propertyName": "tutorial",
-                    "functionName": "newFoundationsUtilitiesTutorial"
-                },
-                {
                     "name": "Menu",
                     "propertyName": "menu",
                     "functionName": "newFoundationsUtilitiesMenu"
@@ -1449,6 +1444,11 @@
                     "name": "Docs",
                     "propertyName": "docs",
                     "functionName": "newEducationUtilitiesDocs"
+                },
+                {
+                    "name": "Tutorial",
+                    "propertyName": "tutorial",
+                    "functionName": "newEducationUtilitiesTutorial"
                 }
             ],
             "spaces": [
