@@ -195,11 +195,7 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
         async function setReferenceParentForNodeHierearchy(nodeHierearchyMap) {
             let mapArray = Array.from(nodeHierearchyMap)
             for (let i = 0; i < mapArray.length; i++) {
-                let mapArrayItem = mapArray[i][1]
-                if(mapArrayItem.name == 'AWhiteWebTestNetwork') {
-                    SA.logger.debug('AppBootstrappingProcess -> mapArrayItem: ' + JSON.stringify(mapArrayItem))
-                }
-                
+                let mapArrayItem = mapArray[i][1]                
                 SA.projects.communityPlugins.utilities.nodes.fromInMemoryStructureToStructureWithReferenceParents(
                     mapArrayItem
                 )
