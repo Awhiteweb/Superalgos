@@ -23,6 +23,8 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
 
     const MINUTES_TO_UPDATE_USER_PROFILES_AND_BALANCES = 10
     let tempBalanceRanking = new Map()
+    /** @type {import('../../NT/Globals/Persistence').NetworkPersistenceModel} */ let userBalancePersistence = NT.projects.network.globals.persistence.newNetworkGlobalsPersistence().initialize(global.env.NETWORK_PERSISTENCE_TYPE, global.env.NETWORK_USER_PROFILE_DATABASE_NAME)
+
     return thisObject
 
     async function initialize(
@@ -431,33 +433,11 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
                     return Number(balance)
                 }
             }
-            const storageData = {
-                updatedAt: Date.UTC().valueOf(),
-                profiles: userProfiles.map(x => ({id: x[1].id, name: x[1].name, balance: x[1].balance}))
-            }
-            persist('userProfilesBalances.json', storageData, true)
+
+            await userBalancePersistence.saveAll(userProfiles.map(x => ({id: x[1].id, name: x[1].name, balance: x[1].balance, updatedAt: new Date().valueOf()})))
             /* Calculate available token power per node (incl. delegated power) and add information to node payloads */
             userProfiles = SA.projects.governance.functionLibraries.profileTokenPower.calculateTokenPower(userProfiles)
             SA.logger.debug('calculated user profile token power for ' + userProfiles.length + ' profiles')
-        }
-
-        /**
-         * Used to persist data to the local storage under the Network folder
-         * @param {string} file 
-         * @param {*} data 
-         * @param {boolean} pretty 
-         */
-        function persist(file, data, pretty = false) {
-            try {
-                const path = SA.nodeModules.path.join(global.env.PATH_TO_DATA_STORAGE, 'Network', file)
-                const content = pretty ? JSON.stringify(data, null, 4) : JSON.stringify(data)
-                SA.nodeModules.fs.writeFileSync(path, content)
-                SA.logger.info('Saved data to ' + file)
-            } 
-            catch(error) {
-                SA.logger.error('Unable to save data to ' + file)
-                SA.logger.error(error)
-            }
         }
 
         /**

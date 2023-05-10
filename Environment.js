@@ -62,6 +62,8 @@ exports.newEnvironment = function () {
             'https://code.jquery.com/jquery-3.6.0.js',
             'https://code.jquery.com/ui/1.13.0/jquery-ui.js'
         ],
+        NETWORK_PERSISTENCE_TYPE: 'file',
+        NETWORK_USER_PROFILE_DATABASE_NAME: path.join(basePath, './Platform/My-Data-Storage/Network/userProfileBalances.json')
     }
 
     setProfileOverrideValues()
