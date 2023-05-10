@@ -153,9 +153,9 @@ exports.newFoundationsTaskModulesDebugLog = function (processIndex) {
 
     function write(pModule, pMessage) {
         try {
-            if (pModule === "") { // For debugging purposes
-                SA.logger.info(pMessage)
-            }
+            // if (pModule === "") { // For debugging purposes
+            // writeLog(pMessage)
+            // }
 
             let newDate = new Date();
             newDate = newDate.toISOString();
@@ -184,5 +184,25 @@ exports.newFoundationsTaskModulesDebugLog = function (processIndex) {
         return str.length < max ? pad("0" + str, max) : str;
     }
 
+    /**
+     * @param {string} message
+     */
+    function writeLog(message) {
+        let logMessage = message.substring(message.indexOf(']')+1).trim()
+        let results = /\[[A-Z]+\]/.exec(message)
+        switch (results[0]) {
+            case '[INFO]':
+                SA.logger.info(logMessage)
+                break
+            case '[WARN]':
+                SA.logger.warn(logMessage)
+                break
+            case '[ERROR]':
+                SA.logger.error(logMessage)
+                break
+            default:
+                SA.logger.debug(logMessage)
+        }
+    }
 };
 

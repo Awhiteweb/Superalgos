@@ -1,0 +1,55 @@
+{
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [{
+			"name": "Launch network",
+            "program": "/Users/alex/Documents/Superalgos/network.js",
+            "request": "launch",
+            "env": {
+                "LOG_LEVEL": "debug"
+            },
+            "type": "node"
+		}],
+		"compounds": []
+	},
+	"folders": [
+		{
+			"path": "/Users/alex/Documents/Superalgos/Network",
+			"name": "Network"
+		},
+		{
+			"path": "/Users/alex/Documents/Superalgos/Projects/Foundations/SA",
+			"name": "Foundations.SA"
+		},
+		{
+			"path": "/Users/alex/Documents/Superalgos/Projects/Community-Plugins/SA",
+			"name": "Community-Plugins.SA"
+		},
+		{
+			"path": "/Users/alex/Documents/Superalgos/Projects/Network/NT",
+			"name": "Projects.Network.NT"
+		},
+		{
+			"path": "/Users/alex/Documents/Superalgos/Plugins/Governance",
+			"name": "Plugins.Governance"
+		},
+		{
+			"path": "/Users/alex/Documents/Superalgos/Plugins/Network",
+			"name": "Plugins.Network"
+		},
+		{
+			"path": "/Users/alex/Documents/Superalgos/Projects/Network/SA",
+			"name": "Projects.Network.SA"
+		},
+		{
+			"path": "/Users/alex/Documents/Superalgos/Projects/Governance/SA",
+			"name": "Projects.Governance.SA"
+		},
+		{
+			"path": "/Users/alex/Documents/Superalgos/Projects/Visual-Scripting/SA",
+			"name": "Projects.VisualScripting.SA"
+		}
+	],
+	"settings": {
+	}
+}

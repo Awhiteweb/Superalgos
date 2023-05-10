@@ -201,7 +201,7 @@
                 TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.write(MODULE_NAME, "[INFO] start -> waitForDependantProcess -> callerId = " + callerId)
 
                 eventServerClient.listenToEvent(key, 'Process Execution Finished', undefined, callerId, responseCallBack, eventsCallBack)
-
+                SA.logger.debug('process execution heart beat (line 204)')
                 TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Waiting for " + thisObject.lanNetworkNode.name + "->" + processThisDependsOn.parentNode.parentNode.name + "->" + processThisDependsOn.parentNode.config.codeName + "->" + processThisDependsOn.config.codeName)
 
                 function responseCallBack(message) {
@@ -230,7 +230,7 @@
                         }
                         TS.projects.foundations.globals.taskConstants.EVENT_SERVER_CLIENT_MODULE_OBJECT.createEventHandler(currentProcessKey, 'Process Execution Started')
                         TS.projects.foundations.globals.taskConstants.EVENT_SERVER_CLIENT_MODULE_OBJECT.raiseEvent(currentProcessKey, 'Process Execution Started', event)
-
+                        SA.logger.debug('process execution heart beat (line 233)')
                         TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Running...")
 
                         TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.write(MODULE_NAME, "[INFO] start -> eventsCallBack -> " + currentProcessKey + " Process Execution Started because " + key + " Finished.")

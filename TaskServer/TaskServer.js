@@ -7,7 +7,7 @@ exports.newTaskServer = function newTaskServer() {
     return thisObject
 
     async function run() {
-
+        TS.id = process.argv[2]
         /* Setting up the handling of Node JS process events */
         let NODE_JS_PROCESS = require('./NodeJsProcess.js');
         let NODE_JS_PROCESS_MODULE = NODE_JS_PROCESS.newNodeJsProcess()
@@ -38,10 +38,14 @@ exports.newTaskServer = function newTaskServer() {
                         SA.logger.debug('Received event message to task server')
                         try {
                             TS.projects.foundations.globals.taskConstants.TASK_NODE = JSON.parse(message.event.taskDefinition)
+                            storeData(taskId + '/' + 'taskDefinition.json', message.event.taskDefinition)
                             TS.projects.foundations.globals.taskConstants.NETWORK_NODE = JSON.parse(message.event.networkDefinition)
+                            storeData(taskId + '/' + 'networkDefinition.json', message.event.networkDefinition)
                             TS.projects.foundations.globals.taskConstants.MANAGED_TASKS = JSON.parse(message.event.managedTasksDefinition)
+                            storeData(taskId + '/' + 'managedTasksDefinition.json', message.event.managedTasksDefinition)
                             if (message.event.dependencyFilters !== undefined) {
                                 TS.projects.foundations.globals.taskConstants.DEPENDENCY_FILTERS = JSON.parse(message.event.dependencyFilters)
+                                storeData(taskId + '/' + 'dependencyFilters.json', message.event.dependencyFilters)
                             }
                             TS.projects.foundations.globals.taskConstants.MANAGED_SESSIONS_REFERENCES = SA.projects.visualScripting.utilities.nodeFunctions.nodeBranchToArray(TS.projects.foundations.globals.taskConstants.TASK_NODE, 'Session Reference')
                             bootingProcess();
@@ -64,10 +68,14 @@ exports.newTaskServer = function newTaskServer() {
                     function startDebugging(message) {
                         try {
                             TS.projects.foundations.globals.taskConstants.TASK_NODE = JSON.parse(message.event.taskDefinition)
+                            storeData('debugTask/' + 'taskDefinition.json', message.event.taskDefinition)
                             TS.projects.foundations.globals.taskConstants.NETWORK_NODE = JSON.parse(message.event.networkDefinition)
+                            storeData('debugTask/' + 'networkDefinition.json', message.event.networkDefinition)
                             TS.projects.foundations.globals.taskConstants.MANAGED_TASKS = JSON.parse(message.event.managedTasksDefinition)
+                            storeData('debugTask/' + 'managedTasksDefinition.json', message.event.managedTasksDefinition)
                             if (message.event.dependencyFilters !== undefined) {
                                 TS.projects.foundations.globals.taskConstants.DEPENDENCY_FILTERS = JSON.parse(message.event.dependencyFilters)
+                                storeData('taskDebug/' + 'dependencyFilters.json', message.event.dependencyFilters)
                             }
                             TS.projects.foundations.globals.taskConstants.MANAGED_SESSIONS_REFERENCES = SA.projects.visualScripting.utilities.nodeFunctions.nodeBranchToArray(TS.projects.foundations.globals.taskConstants.TASK_NODE, 'Session Reference')
                             bootingProcess()
@@ -227,10 +235,10 @@ exports.newTaskServer = function newTaskServer() {
 
                     TS.projects.foundations.globals.taskConstants.EVENT_SERVER_CLIENT_MODULE_OBJECT.createEventHandler(key)
                     TS.projects.foundations.globals.taskConstants.EVENT_SERVER_CLIENT_MODULE_OBJECT.raiseEvent(key, 'Running') // Meaning Task Running
-                    TS.projects.foundations.globals.taskConstants.TASK_HEARTBEAT_INTERVAL_HANDLER = setInterval(taskHearBeat, 1000)
+                    TS.projects.foundations.globals.taskConstants.TASK_HEARTBEAT_INTERVAL_HANDLER = setInterval(taskHeartBeat, 1000)
 
-                    function taskHearBeat() {
-                        SA.logger.debug('Setting up task heat beat')
+                    function taskHeartBeat() {
+                        // SA.logger.debug(TS.id + ' task heart beat for ' + TS.projects.foundations.globals.taskConstants.TASK_NODE.name)
                         /* The heartbeat event is raised at the event handler of the instance of this task, created at the TS. */
                         let event = {
                             seconds: (new Date()).getSeconds()
@@ -289,6 +297,11 @@ exports.newTaskServer = function newTaskServer() {
             let root = ROOT_MODULE.newProcessInstance()
 
             root.start(processIndex)
+        }
+
+        function storeData(filename, data) {
+            let dir = global.env.PATH_TO_DATA_STORAGE + '/' + filename
+            TS.projects.foundations.globals.persistence.save(dir, data)
         }
     }
 }

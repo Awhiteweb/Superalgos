@@ -341,7 +341,7 @@ function newGovernanceFunctionLibraryProfileConstructor() {
                     )
 
                     /*
-                     Let's get a cool name for this node. 
+                     Let's get a cool name for this node, if it does not already have one
                      */
                     if (!hasValue(targetNode.name)) {
                         targetNode.name = targetNodeType + " #" + targetNodeTypeCount

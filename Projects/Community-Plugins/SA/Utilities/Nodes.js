@@ -51,6 +51,8 @@ exports.newPluginsUtilitiesNodes = function () {
                 currentNode.savedPayload.referenceParent !== undefined &&
                 currentNode.savedPayload.referenceParent.id !== undefined
             ) {
+                if(currentNode.type == 'P2P Network')
+                    SA.logger.debug('currentNode has a reference parent')
                 currentObject.referenceParent = currentNode.savedPayload.referenceParent.id
             }
 

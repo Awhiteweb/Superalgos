@@ -27,12 +27,12 @@ exports.newNetworkModulesP2PNetworkNode = function newNetworkModulesP2PNetworkNo
         blockchainAccount
     ) {
         /*
-        We will setup here the maps and arryas we will need to operate within the P2P Network.
-        */
+         * We will setup here the maps and arrays we will need to operate within the P2P Network.
+         */
         thisObject.node = node
         thisObject.userProfile = userProfile
         thisObject.blockchainAccount = blockchainAccount
-       
+
         if (
             thisObject.node.p2pNetworkReference === undefined  
         ) {

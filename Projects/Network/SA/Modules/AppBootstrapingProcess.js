@@ -23,6 +23,8 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
 
     const MINUTES_TO_UPDATE_USER_PROFILES_AND_BALANCES = 10
     let tempBalanceRanking = new Map()
+    /** @type {import('../../NT/Globals/Persistence').NetworkPersistenceModel} */ let userBalancePersistence = NT.projects.network.globals.persistence.newNetworkGlobalsPersistence().initialize(global.env.NETWORK_PERSISTENCE_TYPE, global.env.NETWORK_USER_PROFILE_DATABASE_NAME)
+
     return thisObject
 
     async function initialize(
@@ -96,10 +98,15 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
         )
         await loadTemporaryTokenPower()
         await extractInfoFromUserProfiles()
-        await loadUserProfilesBalances()
+        await loadUserProfilesBalances().then(() => {
+            SA.logger.info('User Profile Balances have been updated by reading blockchain balances.')
+            SA.logger.info('')
+        }).catch((err) => {
+            SA.logger.error('uncaught error from loading user profile balances')
+            SA.logger.error(err)
+            throw err
+        })
 
-        SA.logger.info('User Profile Balances have been updated by reading blockchain balances.')
-        SA.logger.info('')
 
         if (thisObject.p2pNetworkClientIdentity.node === undefined) {
             throw ('The Network Client Identity does not match any node at User Profiles Plugins.')
@@ -117,7 +124,7 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
                 'Network',
                 'P2P-Networks'
             )
-
+            SA.logger.debug('AppBootstrappingProcess -> Plugin files: ' + JSON.stringify(pluginFileNames))
             for (let i = 0; i < pluginFileNames.length; i++) {
                 let pluginFileName = pluginFileNames[i]
 
@@ -190,8 +197,7 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
         async function setReferenceParentForNodeHierearchy(nodeHierearchyMap) {
             let mapArray = Array.from(nodeHierearchyMap)
             for (let i = 0; i < mapArray.length; i++) {
-                let mapArrayItem = mapArray[i][1]
-
+                let mapArrayItem = mapArray[i][1]                
                 SA.projects.communityPlugins.utilities.nodes.fromInMemoryStructureToStructureWithReferenceParents(
                     mapArrayItem
                 )
@@ -211,6 +217,7 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
             SA.logger.info('')
             for (let i = 0; i < userProfiles.length; i++) {
                 let userProfile = userProfiles[i][1]
+                // if(userProfile.name == 'Awhiteweb') continue;
                 let signatureObject = userProfile.config.signature
                 let web3 = new SA.nodeModules.web3()
                 userProfile.blockchainAccount = web3.eth.accounts.recover(signatureObject)
@@ -229,11 +236,24 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
                     One of these Signing Account will be our own identity as a Network Client.
                     */
                     let signingAccounts = SA.projects.visualScripting.utilities.nodeFunctions.nodeBranchToArray(userProfile, 'Signing Account')
-
+                    
                     for (let j = 0; j < signingAccounts.length; j++) {
-
                         let signingAccount = signingAccounts[j]
                         let networkClient = signingAccount.parentNode
+                        // if(userProfile.name == 'Awhiteweb' && networkClient.name == 'P2P Local Network Node') {
+                        //     let cache = [];
+                        //     SA.logger.debug('loading signing account ' + JSON.stringify(networkClient,function(key, value) {
+                        //         if (typeof value === 'object' && value !== null) {
+                        //             if (cache.indexOf(value) !== -1) {
+                        //                 // Circular reference found, discard key
+                        //                 return;
+                        //             }
+                        //             // Store value in our collection
+                        //             cache.push(value);
+                        //         }
+                        //         return value;
+                        //     }))
+                        // }
                         let config = signingAccount.config
                         let signatureObject = config.signature
                         let web3 = new SA.nodeModules.web3()
@@ -287,7 +307,7 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
                         function setupNetworkClientIdentity() {
                             /*
                             At the governance system, you might declare that you have for instance
-                            3 P2P Network Nodes. They way to tell this particular instance which 
+                            3 P2P Network Nodes. The way to tell this particular instance which 
                             one of the 3 it is, is by configuring at the Environment.js which one
                             I want it to be by putting there the codeName of the P2P Network node 
                             I want this to be. With that codename we then get from the Secrets file
@@ -413,15 +433,19 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
                     return Number(balance)
                 }
             }
+
+            await userBalancePersistence.saveAll(userProfiles.map(x => ({id: x[1].id, name: x[1].name, balance: x[1].balance, updatedAt: new Date().valueOf()})))
             /* Calculate available token power per node (incl. delegated power) and add information to node payloads */
-            userProfiles = SA.projects.governance.functionLibraries.profileTokenPower.calculateTokenPower(userProfiles)   
+            userProfiles = SA.projects.governance.functionLibraries.profileTokenPower.calculateTokenPower(userProfiles)
+            SA.logger.debug('calculated user profile token power for ' + userProfiles.length + ' profiles')
         }
 
+        /**
+         * Transfer all profiles to the ranking array.
+         */
         function calculateProfileRankings() {
-            /*
-            Transfer all profiles to the ranking array.
-            */
             let userProfiles = Array.from(SA.projects.network.globals.memory.maps.USER_PROFILES_BY_ID)
+            SA.nodeModules.fs.writeFileSync('UserProfiles.json', JSON.stringify(SA.projects.network.globals.memory.maps.USER_PROFILES_BY_ID))
 
             userProfiles.sort((p1, p2) => p2[1].balance - p1[1].balance)
 
@@ -429,7 +453,8 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
             const rankingTable = userProfiles.map((up, index) => {
                 // add ranking to existing item
                 SA.projects.network.globals.memory.maps.USER_PROFILES_BY_ID.get(up[1].id).ranking = index + 1
-                // Build temporary table which will retain rankings during balance reloads. This avoids users to drop to end of queue when connecting during balance loads.
+                // Build temporary table which will retain rankings during balance reloads. 
+                // This avoids users to drop to end of queue when connecting during balance loads.
                 tempBalanceRanking.set(up[1].id, {ranking: index + 1, balance: up[1].balance})
                 // return user friendly item for console table output
                 return {
@@ -439,12 +464,14 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
                 }
             })
 
-            if (thisObject.loadAllUserProfileBalances === true) {
-                SA.logger.info('User Profiles ranking table calculated based on latest User Profile Balances: ')
-                SA.logger.info('')
-                console.table(rankingTable)
-                SA.logger.info('')
-            }
+            // SA.nodeModules.fs.writeFileSync('UserProfiles.json', JSON.stringify(SA.projects.network.globals.memory.maps.USER_PROFILES_BY_ID))
+
+            // if (thisObject.loadAllUserProfileBalances === true) {
+            //     SA.logger.info('User Profiles ranking table calculated based on latest User Profile Balances: ')
+            //     SA.logger.info('')
+            //     console.table(rankingTable)
+            //     SA.logger.info('')
+            // }
         }
 
         function setupPermissionedNetwork() {

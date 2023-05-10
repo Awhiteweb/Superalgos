@@ -58,9 +58,11 @@ exports.newFoundationsProcessModulesProcessTradingSignals = function (processInd
             */
             TS.projects.foundations.globals.loggerVariables.VARIABLES_BY_PROCESS_INDEX_MAP.get(processIndex).BOT_MAIN_LOOP_LOGGER_MODULE_OBJECT.write(MODULE_NAME, "[INFO] start -> We need to wait for a Trading Signal to arrive in order to continue.")
             TS.projects.foundations.globals.taskConstants.TRADING_SIGNALS.incomingCandleSignals.callMeWhenSignalReceived(onSignalReceived)
+            SA.logger.debug('process trading signals heart beat (line 61)')
             TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Waiting for a Trading Signal to Continue.")
-
+            
             function onSignalReceived() {
+                SA.logger.debug('process trading signals heart beat (line 65)')
                 TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, undefined, undefined, "Continuing Execution after Trading Signal Arrived.")
                 callBackFunction(TS.projects.foundations.globals.standardResponses.DEFAULT_OK_RESPONSE)
             }

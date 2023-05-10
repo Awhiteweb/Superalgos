@@ -420,6 +420,7 @@ exports.newSimulationFunctionLibrariesSimulationFunctions = function () {
                     /* Date only heartbeat */
                     if (sessionParameters.heartbeats.config.date === true && sessionParameters.heartbeats.config.candleIndex === false) {
                         hartbeatText = hartbeatText + currentDateString
+                        SA.logger.debug('simulation function heart beat (line 422)')
                         TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, hartbeatText, percentage)
                         return
                     }
@@ -434,6 +435,7 @@ exports.newSimulationFunctionLibrariesSimulationFunctions = function () {
                         hartbeatText = hartbeatText + currentDateString
                     }
                     hartbeatText = hartbeatText + ' Candle # ' + episodeCandle.index.value
+                    SA.logger.debug('simulation function heart beat (line 437)')
                     TS.projects.foundations.functionLibraries.processFunctions.processHeartBeat(processIndex, hartbeatText, percentage)
                 }
             }
