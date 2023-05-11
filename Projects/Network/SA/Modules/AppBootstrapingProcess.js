@@ -23,7 +23,7 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
 
     const MINUTES_TO_UPDATE_USER_PROFILES_AND_BALANCES = 10
     let tempBalanceRanking = new Map()
-    /** @type {import('../../NT/Globals/Persistence').NetworkPersistenceModel} */ let userBalancePersistence = NT.projects.network.globals.persistence.newNetworkGlobalsPersistence().initialize(global.env.NETWORK_PERSISTENCE_TYPE, global.env.NETWORK_USER_PROFILE_DATABASE_NAME)
+    /** @type {import('../../NT/Globals/Persistence').NetworkPersistenceModel} */ let userBalancePersistence = NT.projects.network.globals.persistence.newPersistenceStore(global.env.NETWORK_PERSISTENCE_TYPE, global.env.NETWORK_USER_PROFILE_DATABASE_NAME)
 
     return thisObject
 
