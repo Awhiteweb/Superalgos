@@ -1,4 +1,4 @@
-exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppBootstrapingProcess() {
+exports.newNetworkModulesProfileManagerAppBootstrapingProcess = function newNetworkModulesProfileManagerAppBootstrapingProcess() {
     /*
     This module is useful for all Apps that needs to operate with the P2P Network. 
     
@@ -14,7 +14,6 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
     */
     let thisObject = {
         pullUserProfiles: undefined,
-        reloadFromStorage: undefined,
         userAppCodeName: undefined,
         p2pNetworkClientIdentity: undefined,
         loadAllUserProfileBalances: undefined, 
@@ -22,7 +21,7 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
         run: run
     }
 
-    const MINUTES_TO_UPDATE_USER_PROFILES_AND_BALANCES = 3
+    const MINUTES_TO_UPDATE_USER_PROFILES_AND_BALANCES = 10
     let tempBalanceRanking = new Map()
     /** @type {import('../../NT/Globals/Persistence').NetworkPersistenceModel} */ let userBalancePersistence = NT.projects.network.globals.persistence.newPersistenceStore(global.env.PERSISTENCE.NETWORK.TYPE, global.env.PERSISTENCE.NETWORK.USER_PROFILE_DATABASE_NAME)
 
@@ -38,33 +37,8 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
         thisObject.userAppCodeName = userAppCodeName
         thisObject.p2pNetworkClientIdentity = p2pNetworkClientIdentity
         thisObject.loadAllUserProfileBalances = loadAllUserProfileBalances
-        thisObject.reloadFromStorage = false
         await run()
-        if (thisObject.pullUserProfiles === true) {
-            // This wants to be moved to a new process so it can operated on a different thread.
-            // then an interval can be used to updated the profile balances from the persisted store
-
-            const path = global.env.BASE_PATH + '/NetworkProfileManager.js'
-            const taskArgs = []
-            if(process.env.PROFILE_NAME !== undefined) {
-                taskArgs.push('PROFILE_NAME=' + process.env.PROFILE_NAME)
-            }
-            if(global.env.LOG_LEVEL !== undefined) {
-                taskArgs.push('logLevel=' + global.env.LOG_LEVEL)
-            }
-            setInterval(() => {
-                const childProcess = SA.nodeModules.childProcess.fork(path, taskArgs, { stdio: 'inherit' })
-                childProcess.on('message', (message) => {
-                    if(message == 'update') {
-                        thisObject.pullUserProfiles = false
-                        thisObject.reloadFromStorage = true
-                        run()
-                    }
-                })
-            }, 60000 * MINUTES_TO_UPDATE_USER_PROFILES_AND_BALANCES)
-            SA.logger.info('Updates of all in-memory User Profiles scheduled to run every ' + MINUTES_TO_UPDATE_USER_PROFILES_AND_BALANCES + ' minutes.')
-            SA.logger.info('')
-        }
+        process.send('update')
     }
 
     async function run() {
@@ -128,15 +102,6 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
             SA.logger.error(err)
             throw err
         })
-
-
-        if (thisObject.p2pNetworkClientIdentity.node === undefined) {
-            throw ('The Network Client Identity does not match any node at User Profiles Plugins.')
-        }
-
-        calculateProfileRankings()
-
-        setupPermissionedNetwork()
 
         async function loadUserP2PNetworksPlugins() {
             /*
@@ -386,29 +351,17 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
                 */
                 const activeChains = ['BSC', 'ETH']
                 userProfile.balance = 0
-                if(thisObject.reloadFromStorage) {
-                    const storedProfile = userBalancePersistence.findItem(userProfile.id)
-                    if(storedProfile !== undefined) {
-                        userProfile.balance = storedProfile.balance
-                        SA.logger.info('User profile ' + userProfile.name + ' balance loaded from storage')
-                    }
-                    else {
-                        SA.logger.warn('User profile ' + userProfile.name + ' has not been loaded into storage yet, if this continues the child process will need debugging')
-                    }
-                }
-                else {
-                    for (const chain of activeChains) {
-                        if (
-                            thisObject.loadAllUserProfileBalances === true ||
-                            thisObject.p2pNetworkClientIdentity.userProfile.id === userProfile.id
-                            ) {
-                                /*
-                                If we are running inside a Task, that means we are in a Network Client, so we only need the Balance of the User Profile
-                                running that Task, not of the rest of users. On the other hand, if we are running at a Network Node, we need the Balance of
-                                all User Profiles.
-                                */
-                               userProfile.balance = userProfile.balance + await getProfileBalance(chain, userProfile.blockchainAccount)
-                        }
+                for (const chain of activeChains) {
+                    if (
+                        thisObject.loadAllUserProfileBalances === true ||
+                        thisObject.p2pNetworkClientIdentity.userProfile.id === userProfile.id
+                    ) {
+                        /*
+                        If we are running inside a Task, that means we are in a Network Client, so we only need the Balance of the User Profile
+                        running that Task, not of the rest of users. On the other hand, if we are running at a Network Node, we need the Balance of
+                        all User Profiles.
+                        */
+                        userProfile.balance = userProfile.balance + await getProfileBalance(chain, userProfile.blockchainAccount)
                     }
                 }
                 if (userProfile.balance > 0) {
@@ -467,69 +420,11 @@ exports.newNetworkModulesAppBootstrapingProcess = function newNetworkModulesAppB
                     return Number(balance)
                 }
             }
-            if(!thisObject.reloadFromStorage) {
-                // this should trigger persistence on the inital startup of the network, but later reply on the child process
-                await userBalancePersistence.saveAll(userProfiles.map(x => ({id: x[1].id, name: x[1].name, balance: x[1].balance, updatedAt: new Date().valueOf()})))
-            }
+
+            await userBalancePersistence.saveAll(userProfiles.map(x => ({id: x[1].id, name: x[1].name, balance: x[1].balance, updatedAt: new Date().valueOf()})))
             /* Calculate available token power per node (incl. delegated power) and add information to node payloads */
             userProfiles = SA.projects.governance.functionLibraries.profileTokenPower.calculateTokenPower(userProfiles)
             SA.logger.debug('calculated user profile token power for ' + userProfiles.length + ' profiles')
-        }
-
-        /**
-         * Transfer all profiles to the ranking array.
-         */
-        function calculateProfileRankings() {
-            let userProfiles = Array.from(SA.projects.network.globals.memory.maps.USER_PROFILES_BY_ID)
-            SA.nodeModules.fs.writeFileSync('UserProfiles.json', JSON.stringify(SA.projects.network.globals.memory.maps.USER_PROFILES_BY_ID))
-
-            userProfiles.sort((p1, p2) => p2[1].balance - p1[1].balance)
-
-            tempBalanceRanking.clear()
-            const rankingTable = userProfiles.map((up, index) => {
-                // add ranking to existing item
-                SA.projects.network.globals.memory.maps.USER_PROFILES_BY_ID.get(up[1].id).ranking = index + 1
-                // Build temporary table which will retain rankings during balance reloads. 
-                // This avoids users to drop to end of queue when connecting during balance loads.
-                tempBalanceRanking.set(up[1].id, {ranking: index + 1, balance: up[1].balance})
-                // return user friendly item for console table output
-                return {
-                    userProfile: up[1].name,
-                    balance: SA.projects.governance.utilities.balances.toSABalanceString(up[1].balance),
-                    ranking: index + 1
-                }
-            })
-
-            // SA.nodeModules.fs.writeFileSync('UserProfiles.json', JSON.stringify(SA.projects.network.globals.memory.maps.USER_PROFILES_BY_ID))
-
-            // if (thisObject.loadAllUserProfileBalances === true) {
-            //     SA.logger.info('User Profiles ranking table calculated based on latest User Profile Balances: ')
-            //     SA.logger.info('')
-            //     console.table(rankingTable)
-            //     SA.logger.info('')
-            // }
-        }
-
-        function setupPermissionedNetwork() {
-            /*
-            If we are a P2P Network Node that is part of a Permissioned P2P Network,
-            then we will need to build a Map with all User Profiles that have access
-            to this network, in order to use it later to enforce these permissions
-            at the Network Interfaces.
-            */
-            if (thisObject.p2pNetworkClientIdentity.node.type !== "P2P Network Node") { return }
-            if (thisObject.p2pNetworkClientIdentity.node.p2pNetworkReference.referenceParent.type !== "Permissioned P2P Network") { return }
-
-            let petmissionGrantedArray = SA.projects.visualScripting.utilities.nodeFunctions.nodeBranchToArray(
-                thisObject.p2pNetworkClientIdentity.node.p2pNetworkReference.referenceParent,
-                'Permission Granted'
-            )
-
-            for (let i = 0; i < petmissionGrantedArray.length; i++) {
-                let permissionGranted = petmissionGrantedArray[i]
-                if (permissionGranted.referenceParent === undefined) { continue }
-                SA.projects.network.globals.memory.maps.PERMISSIONS_GRANTED_BY_USER_PRFILE_ID.set(permissionGranted.referenceParent.id, permissionGranted.referenceParent)
-            }
         }
     }
 }

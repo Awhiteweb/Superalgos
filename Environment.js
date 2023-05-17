@@ -62,8 +62,12 @@ exports.newEnvironment = function () {
             'https://code.jquery.com/jquery-3.6.0.js',
             'https://code.jquery.com/ui/1.13.0/jquery-ui.js'
         ],
-        NETWORK_PERSISTENCE_TYPE: 'file',
-        NETWORK_USER_PROFILE_DATABASE_NAME: path.join(basePath, './Platform/My-Data-Storage/Network/userProfileBalances.json')
+        PERSISTENCE: {
+            NETWORK: {
+                TYPE: 'file',
+                USER_PROFILE_DATABASE_NAME: path.join(basePath, './Platform/My-Data-Storage/Network/userProfileBalances.json')
+            }
+        }
     }
 
     setProfileOverrideValues()
@@ -107,6 +111,12 @@ exports.newEnvironment = function () {
         if(profile.storeLogs !== undefined) { thisObject.PATH_TO_LOG_FILES = profile.storeLogs }
         if(profile.storeWorkspaces !== undefined) { thisObject.PATH_TO_MY_WORKSPACES = profile.storeWorkspaces }
         if(profile.logLevel !== undefined) { thisObject.LOG_LEVEL = profile.logLevel }
+        if(profile.persistence !== undefined) {
+            if(profile.persistence.network !== undefined) {
+                if(profile.persistence.network.type !== undefined) { thisObject.PERSISTENCE.NETWORK.TYPE = profile.persistence.network.type }
+                if(profile.persistence.network.user_profile_database_name !== undefined) { thisObject.PERSISTENCE.NETWORK.USER_PROFILE_DATABASE_NAME = profile.persistence.network.user_profile_database_name }
+            }
+        }
     }
 
     function setLogLevelIfAvailable() {

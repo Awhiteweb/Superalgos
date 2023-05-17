@@ -1878,6 +1878,12 @@
                     "fileName": "AppBootstrapingProcess.js"
                 },
                 {
+                    "name": "Profile Manager App Bootstraping Process",
+                    "propertyName": "profileManagerAppBootstrapingProcess",
+                    "functionName": "newNetworkModulesProfileManagerAppBootstrapingProcess",
+                    "fileName": "ProfileManagerAppBootstrapingProcess.js"
+                },
+                {
                     "name": "P2P Network Reachable Nodes",
                     "propertyName": "p2pNetworkReachableNodes",
                     "functionName": "newNetworkModulesP2PNetworkReachableNodes",
