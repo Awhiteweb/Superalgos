@@ -79,7 +79,7 @@ function newNetworkProfileManager() {
         let SECRETS = require('./Secrets.js').newSecrets()
         SECRETS.initialize()
 
-        NT.app = require('./Network/NetwokProfileMangerApp.js').newNetworkProfileManagerApp()
+        NT.app = require('./Network/NetwokProfileManagerApp.js').newNetworkProfileManagerApp()
         NT.app.run()
     }
 }
