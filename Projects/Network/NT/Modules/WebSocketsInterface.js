@@ -108,8 +108,6 @@ exports.newNetworkModulesWebSocketsInterface = function newNetworkModulesWebSock
 
                 socket.on('close', onConnectionClosed)
 
-                // Refresh all connections every 1hr.
-                setTimeout(refreshConnections, 3600000);
 
                 /* Active bi-directional heartbeat of the websockets connection to detect and handle hidden connection drops */
                 caller.socket.isAlive = true
@@ -133,12 +131,6 @@ exports.newNetworkModulesWebSocketsInterface = function newNetworkModulesWebSock
                     thisObject.socketInterfaces.onConnectionClosed(caller.id)
                     SA.logger.debug('Deleting socket client for ' + tailLogInfo(caller))
                     clients.delete(socket);
-                }
-
-                // Terminate Connection on server side so client side can reconnect.
-                function refreshConnections() {
-                    clients.delete(socket);
-                    return caller.socket.terminate()
                 }
             }
 
